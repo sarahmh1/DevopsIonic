@@ -3,8 +3,6 @@ node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
-package-lock.json
-yarn.lock
 
 # Environment variables
 .env
@@ -23,7 +21,6 @@ www/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Testing
 coverage/
@@ -31,7 +28,6 @@ coverage/
 
 # Database files
 *.db
-events.db
 
 # Logs
 logs/
@@ -44,20 +40,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-*~
 *.bak
-
-# Node modules cache
-.npm/
-
-# Ionic specific
-capacitor.lock.json
-
-# Build artifacts
-*.js.map
-*.css.map
 
 # Miscellaneous
 .history/
-.angular/cache/
 *.tar.gz
