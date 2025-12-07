@@ -1,0 +1,34 @@
+services:
+  # Service Backend
+  backend:
+    image: event-backend:latest
+    container_name: event-backend-container
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - JWT_SECRET=your-secret-key-change-in-production
+      - NODE_ENV=production
+    volumes:
+      - ./backend/events.db:/app/events.db
+    networks:
+      - event-network
+    restart: unless-stopped
+
+  # Service Frontend
+  frontend:
+    image: event-frontend:latest
+    container_name: event-frontend-container
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - event-network
+    restart: unless-stopped
+
+networks:
+  event-network:
+    driver: bridge
