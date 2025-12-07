@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Connexion</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <h2>Gestion d'Événements</h2>
+    
+    <ion-segment [(ngModel)]="userType">
+      <ion-segment-button value="organizer">
+        <ion-label>Organisateur</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="participant">
+        <ion-label>Participant</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input type="email" [(ngModel)]="email" placeholder="votre@email.com"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Mot de passe</ion-label>
+      <ion-input type="password" [(ngModel)]="password" placeholder="Votre mot de passe"></ion-input>
+    </ion-item>
+
+    <ion-button expand="block" (click)="login()" class="ion-margin-top" [disabled]="isLoading">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Se connecter</span>
+    </ion-button>
+
+    <ion-button expand="block" fill="outline" [routerLink]="['/register']" class="ion-margin-top" [disabled]="isLoading">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Créer un compte</span>
+    </ion-button>
+  </div>
+</ion-content>

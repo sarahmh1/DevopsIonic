@@ -1,0 +1,33 @@
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: #666;
+}
+
+.empty-state ion-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.event-card {
+  margin-bottom: 20px;
+}
+
+.event-card ion-card-content p {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.event-card ion-card-content ion-icon {
+  margin-right: 8px;
+}
+
+h3 {
+  margin: 20px 0 15px 0;
+  color: #3880ff;
+}
+
+ion-segment {
+  margin-bottom: 20px;
+}

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application de Gestion d'Événements</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #3880ff;
+            margin-bottom: 30px;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3880ff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3171e0;
+        }
+        .user-type {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .user-type input[type="radio"] {
+            width: auto;
+        }
+        .events-list {
+            margin-top: 30px;
+        }
+        .event-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        .event-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3880ff;
+            margin-bottom: 10px;
+        }
+        .event-details {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .event-actions {
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #3880ff;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #eb445a;
+            color: white;
+        }
+        .btn-success {
+            background-color: #2dd36f;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #3880ff;
+            color: white;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            color: #eb445a;
+            background-color: #fdf2f2;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .success {
+            color: #2dd36f;
+            background-color: #f2fdf2;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Application de Gestion d'Événements</h1>
+            <p>Gérez vos événements facilement</p>
+        </div>
+
+        <!-- Messages -->
+        <div id="messageContainer"></div>
+
+        <!-- Page de connexion -->
+        <div id="loginPage">
+            <div class="login-form">
+                <h2>Connexion</h2>
+                
+                <div class="user-type">
+                    <label>
+                        <input type="radio" name="userType" value="organizer" checked>
+                        Organisateur
+                    </label>
+                    <label>
+                        <input type="radio" name="userType" value="participant">
+                        Participant
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email :</label>
+                    <input type="email" id="email" placeholder="votre@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe :</label>
+                    <input type="password" id="password" placeholder="Votre mot de passe">
+                </div>
+
+                <button onclick="login()">Se connecter</button>
+                <button onclick="register()" style="background-color: #2dd36f; margin-top: 10px;">Créer un compte</button>
+            </div>
+        </div>
+
+        <!-- Page organisateur -->
+        <div id="organizerPage" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Mes Événements</h2>
+                <button onclick="logout()" class="btn" style="background-color: #666;">Déconnexion</button>
+            </div>
+            <button onclick="showAddEventForm()" class="btn btn-primary">+ Nouvel événement</button>
+            
+            <div id="organizerEvents" class="events-list">
+                <div class="loading">Chargement des événements...</div>
+            </div>
+        </div>
+
+        <!-- Page participant -->
+        <div id="participantPage" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Événements</h2>
+                <button onclick="logout()" class="btn" style="background-color: #666;">Déconnexion</button>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('allEvents')">Tous les événements</button>
+                <button class="tab" onclick="showTab('myEvents')">Mes événements</button>
+            </div>
+
+            <div id="allEvents" class="events-list">
+                <div class="loading">Chargement des événements...</div>
+            </div>
+
+            <div id="myEvents" class="events-list hidden">
+                <div class="loading">Chargement de vos événements...</div>
+            </div>
+        </div>
+
+        <!-- Formulaire d'événement -->
+        <div id="eventForm" class="hidden">
+            <h2 id="eventFormTitle">Nouvel événement</h2>
+            
+            <div class="form-group">
+                <label for="eventTitle">Titre * :</label>
+                <input type="text" id="eventTitle" placeholder="Titre de l'événement">
+            </div>
+
+            <div class="form-group">
+                <label for="eventDate">Date et heure * :</label>
+                <input type="datetime-local" id="eventDate">
+            </div>
+
+            <div class="form-group">
+                <label for="eventLocation">Lieu * :</label>
+                <input type="text" id="eventLocation" placeholder="Lieu de l'événement">
+            </div>
+
+            <div class="form-group">
+                <label for="eventDescription">Description :</label>
+                <textarea id="eventDescription" rows="4" placeholder="Description de l'événement"></textarea>
+            </div>
+
+            <button onclick="saveEvent()" class="btn btn-primary">Sauvegarder</button>
+            <button onclick="cancelEventForm()" class="btn" style="background-color: #666;">Annuler</button>
+        </div>
+    </div>
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+    
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // État de l'application
+        let currentUser = null;
+        let currentToken = null;
+        let events = [];
+        let currentEditingEvent = null;
+
+        // Fonctions utilitaires
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function showLoading(containerId) {
+            document.getElementById(containerId).innerHTML = '<div class="loading">Chargement...</div>';
+        }
+
+        // Fonctions API
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (currentToken) {
+                options.headers['Authorization'] = `Bearer ${currentToken}`;
+            }
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'Erreur API');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('Erreur API:', error);
+                throw error;
+            }
+        }
+
+        // Fonction de connexion
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const userType = document.querySelector('input[name="userType"]:checked').value;
+
+            console.log('Données de connexion:', { email, password, userType });
+
+            if (!email || !password) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            try {
+                showMessage('Connexion en cours...');
+                
+                const response = await apiCall('/login', 'POST', { email, password });
+                
+                currentUser = response.user;
+                currentToken = response.token;
+                
+                // Vérifier le type d'utilisateur
+                if (response.user.type !== userType) {
+                    showMessage('Type d\'utilisateur incorrect', 'error');
+                    return;
+                }
+
+                showMessage('Connexion réussie !');
+                
+                if (userType === 'organizer') {
+                    showOrganizerPage();
+                } else {
+                    showParticipantPage();
+                }
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                showMessage(error.message || 'Erreur de connexion', 'error');
+            }
+        }
+
+        // Fonction d'inscription
+        async function register() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const userType = document.querySelector('input[name="userType"]:checked').value;
+
+            console.log('Données d\'inscription:', { email, password, userType });
+
+            if (!email || !password) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            try {
+                showMessage('Création du compte en cours...');
+                
+                const response = await apiCall('/register', 'POST', { 
+                    email: email, 
+                    password: password, 
+                    type: userType 
+                });
+                
+                currentUser = response.user;
+                currentToken = response.token;
+                
+                showMessage('Compte créé avec succès !');
+                
+                // Vider les champs
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                
+                if (userType === 'organizer') {
+                    showOrganizerPage();
+                } else {
+                    showParticipantPage();
+                }
+            } catch (error) {
+                console.error('Erreur d\'inscription:', error);
+                showMessage(error.message || 'Erreur lors de la création du compte', 'error');
+            }
+        }
+
+        // Afficher la page organisateur
+        function showOrganizerPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('participantPage').classList.add('hidden');
+            document.getElementById('organizerPage').classList.remove('hidden');
+            loadOrganizerEvents();
+        }
+
+        // Afficher la page participant
+        function showParticipantPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('organizerPage').classList.add('hidden');
+            document.getElementById('participantPage').classList.remove('hidden');
+            loadAllEvents();
+            loadMyEvents();
+        }
+
+        // Charger les événements de l'organisateur
+        async function loadOrganizerEvents() {
+            showLoading('organizerEvents');
+            
+            try {
+                const response = await apiCall('/my-events');
+                events = response || [];
+                
+                const container = document.getElementById('organizerEvents');
+                
+                if (events.length === 0) {
+                    container.innerHTML = '<p>Aucun événement créé. Créez votre premier événement !</p>';
+                    return;
+                }
+
+                container.innerHTML = events.map(event => `
+                    <div class="event-card">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-details">
+                            <strong>Date :</strong> ${new Date(event.date).toLocaleString()}<br>
+                            <strong>Lieu :</strong> ${event.location}<br>
+                            <strong>Description :</strong> ${event.description || 'Aucune description'}<br>
+                            <strong>Participants :</strong> ${event.participant_count || 0}
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn btn-primary" onclick="editEvent(${event.id})">Modifier</button>
+                            <button class="btn btn-danger" onclick="deleteEvent(${event.id})">Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('organizerEvents').innerHTML = '<p>Erreur lors du chargement des événements</p>';
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Charger tous les événements
+        async function loadAllEvents() {
+            showLoading('allEvents');
+            
+            try {
+                const response = await apiCall('/events');
+                events = response || [];
+                
+                const container = document.getElementById('allEvents');
+                
+                if (events.length === 0) {
+                    container.innerHTML = '<p>Aucun événement disponible.</p>';
+                    return;
+                }
+
+                container.innerHTML = events.map(event => `
+                    <div class="event-card">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-details">
+                            <strong>Date :</strong> ${new Date(event.date).toLocaleString()}<br>
+                            <strong>Lieu :</strong> ${event.location}<br>
+                            <strong>Description :</strong> ${event.description || 'Aucune description'}<br>
+                            <strong>Participants :</strong> ${event.participant_count || 0}
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn btn-success" onclick="registerForEvent(${event.id})">S'inscrire</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('allEvents').innerHTML = '<p>Erreur lors du chargement des événements</p>';
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Charger mes événements
+        async function loadMyEvents() {
+            showLoading('myEvents');
+            
+            try {
+                const response = await apiCall('/my-events');
+                const myEvents = response || [];
+                
+                const container = document.getElementById('myEvents');
+                
+                if (myEvents.length === 0) {
+                    container.innerHTML = '<p>Vous n\'êtes inscrit à aucun événement.</p>';
+                    return;
+                }
+
+                container.innerHTML = myEvents.map(event => `
+                    <div class="event-card">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-details">
+                            <strong>Date :</strong> ${new Date(event.date).toLocaleString()}<br>
+                            <strong>Lieu :</strong> ${event.location}<br>
+                            <strong>Description :</strong> ${event.description || 'Aucune description'}<br>
+                            <strong>Participants :</strong> ${event.participant_count || 0}
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn btn-danger" onclick="unregisterFromEvent(${event.id})">Se désinscrire</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('myEvents').innerHTML = '<p>Erreur lors du chargement de vos événements</p>';
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Afficher le formulaire d'événement
+        function showAddEventForm() {
+            currentEditingEvent = null;
+            document.getElementById('eventFormTitle').textContent = 'Nouvel événement';
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDate').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventForm').classList.remove('hidden');
+        }
+
+        // Sauvegarder l'événement
+        async function saveEvent() {
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const location = document.getElementById('eventLocation').value;
+            const description = document.getElementById('eventDescription').value;
+
+            if (!title || !date || !location) {
+                showMessage('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+
+            try {
+                if (currentEditingEvent) {
+                    await apiCall(`/events/${currentEditingEvent}`, 'PUT', {
+                        title, date, location, description
+                    });
+                    showMessage('Événement modifié avec succès !');
+                } else {
+                    await apiCall('/events', 'POST', {
+                        title, date, location, description
+                    });
+                    showMessage('Événement créé avec succès !');
+                }
+
+                cancelEventForm();
+                
+                if (currentUser.type === 'organizer') {
+                    loadOrganizerEvents();
+                } else {
+                    loadAllEvents();
+                    loadMyEvents();
+                }
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Annuler le formulaire
+        function cancelEventForm() {
+            document.getElementById('eventForm').classList.add('hidden');
+        }
+
+        // Modifier un événement
+        function editEvent(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                currentEditingEvent = eventId;
+                document.getElementById('eventFormTitle').textContent = 'Modifier l\'événement';
+                document.getElementById('eventTitle').value = event.title;
+                document.getElementById('eventDate').value = new Date(event.date).toISOString().slice(0, 16);
+                document.getElementById('eventLocation').value = event.location;
+                document.getElementById('eventDescription').value = event.description || '';
+                document.getElementById('eventForm').classList.remove('hidden');
+            }
+        }
+
+        // Supprimer un événement
+        async function deleteEvent(eventId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+                try {
+                    await apiCall(`/events/${eventId}`, 'DELETE');
+                    showMessage('Événement supprimé avec succès !');
+                    loadOrganizerEvents();
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            }
+        }
+
+        // S'inscrire à un événement
+        async function registerForEvent(eventId) {
+            try {
+                await apiCall(`/events/${eventId}/register`, 'POST');
+                showMessage('Inscription réussie ! Vous recevrez un rappel 24h avant l\'événement.');
+                loadAllEvents();
+                loadMyEvents();
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Se désinscrire d'un événement
+        async function unregisterFromEvent(eventId) {
+            try {
+                await apiCall(`/events/${eventId}/unregister`, 'DELETE');
+                showMessage('Désinscription réussie !');
+                loadAllEvents();
+                loadMyEvents();
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Changer d'onglet
+        function showTab(tabName) {
+            // Mettre à jour les onglets
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Afficher le bon contenu
+            document.getElementById('allEvents').classList.add('hidden');
+            document.getElementById('myEvents').classList.add('hidden');
+            document.getElementById(tabName).classList.remove('hidden');
+        }
+
+        // Déconnexion
+        function logout() {
+            currentUser = null;
+            currentToken = null;
+            document.getElementById('organizerPage').classList.add('hidden');
+            document.getElementById('participantPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Application de gestion d\'événements chargée');
+        });
+    </script>
+</body>
+</html>

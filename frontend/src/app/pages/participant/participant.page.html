@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Événements</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/notifications" class="notifications-button" *ngIf="user && user.type === 'organizer'">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <ion-badge *ngIf="unread > 0">{{ unread }}</ion-badge>
+      </ion-button>
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange()">
+    <ion-segment-button value="all">
+      <ion-label>Tous les événements</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="my">
+      <ion-label>Mes événements</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div *ngIf="selectedTab === 'all'">
+    <h3>Tous les événements</h3>
+    <div *ngIf="events.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline" size="large"></ion-icon>
+      <h3>Aucun événement disponible</h3>
+    </div>
+
+    <ion-card *ngFor="let event of events" class="event-card">
+      <ion-card-header>
+        <ion-card-title>{{ event.title }}</ion-card-title>
+        <ion-card-subtitle>{{ event.date | date:'dd/MM/yyyy à HH:mm' }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><ion-icon name="location-outline"></ion-icon> {{ event.location }}</p>
+        <p>{{ event.description }}</p>
+        <p><strong>{{ event.participant_count || 0 }} participant(s)</strong></p>
+      </ion-card-content>
+
+      <ion-card-content>
+        <ion-button 
+          *ngIf="!isRegisteredForEvent(event.id)"
+          expand="block" 
+          (click)="registerForEvent(event.id)">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          S'inscrire
+        </ion-button>
+        <ion-button 
+          *ngIf="isRegisteredForEvent(event.id)"
+          expand="block" 
+          color="danger" 
+          (click)="unregisterFromEvent(event.id)">
+          <ion-icon name="remove-circle-outline"></ion-icon>
+          Se désinscrire
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="selectedTab === 'my'">
+    <h3>Mes événements</h3>
+    <div *ngIf="myEvents.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline" size="large"></ion-icon>
+      <h3>Vous n'êtes inscrit à aucun événement</h3>
+    </div>
+
+    <ion-card *ngFor="let event of myEvents" class="event-card">
+      <ion-card-header>
+        <ion-card-title>{{ event.title }}</ion-card-title>
+        <ion-card-subtitle>{{ event.date | date:'dd/MM/yyyy à HH:mm' }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><ion-icon name="location-outline"></ion-icon> {{ event.location }}</p>
+        <p>{{ event.description }}</p>
+        <p><strong>{{ event.participant_count || 0 }} participant(s)</strong></p>
+      </ion-card-content>
+
+      <ion-card-content>
+        <ion-button 
+          expand="block" 
+          color="danger" 
+          (click)="unregisterFromEvent(event.id)">
+          <ion-icon name="remove-circle-outline"></ion-icon>
+          Se désinscrire
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

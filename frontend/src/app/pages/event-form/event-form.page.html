@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ event ? 'Modifier l\'événement' : 'Nouvel événement' }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="stacked">Titre *</ion-label>
+    <ion-input [(ngModel)]="formData.title" placeholder="Titre de l'événement"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Date et heure *</ion-label>
+    <ion-datetime [(ngModel)]="formData.date" display-format="DD/MM/YYYY HH:mm"></ion-datetime>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Lieu *</ion-label>
+    <ion-input [(ngModel)]="formData.location" placeholder="Lieu de l'événement"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Description</ion-label>
+    <ion-textarea [(ngModel)]="formData.description" placeholder="Description de l'événement" rows="4"></ion-textarea>
+  </ion-item>
+
+  <ion-button expand="block" (click)="saveEvent()" class="ion-margin-top" [disabled]="isLoading">
+    <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+    <span *ngIf="!isLoading">{{ event ? 'Modifier' : 'Créer' }} l'événement</span>
+  </ion-button>
+</ion-content>

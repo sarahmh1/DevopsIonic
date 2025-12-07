@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mes Événements</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/notifications" class="notifications-button" *ngIf="true">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <ion-badge *ngIf="unread > 0">{{ unread }}</ion-badge>
+      </ion-button>
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addEvent()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <div *ngIf="events.length === 0" class="empty-state">
+    <ion-icon name="calendar-outline" size="large"></ion-icon>
+    <h3>Aucun événement</h3>
+    <p>Créez votre premier événement en appuyant sur le bouton +</p>
+  </div>
+
+  <ion-card *ngFor="let event of events" class="event-card">
+    <ion-card-header>
+      <ion-card-title>{{ event.title }}</ion-card-title>
+      <ion-card-subtitle>{{ event.date | date:'dd/MM/yyyy à HH:mm' }}</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p><ion-icon name="location-outline"></ion-icon> {{ event.location }}</p>
+      <p>{{ event.description }}</p>
+      <p><strong>{{ event.participant_count || 0 }} participant(s)</strong></p>
+    </ion-card-content>
+
+    <ion-card-content>
+      <ion-button fill="outline" (click)="editEvent(event)">
+        <ion-icon name="create-outline"></ion-icon>
+        Modifier
+      </ion-button>
+      <ion-button fill="outline" color="danger" (click)="deleteEvent(event.id)">
+        <ion-icon name="trash-outline"></ion-icon>
+        Supprimer
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

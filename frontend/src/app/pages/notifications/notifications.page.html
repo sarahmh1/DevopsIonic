@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" icon="arrow-back"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Notifications</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-list *ngIf="!loading">
+    <ion-item *ngFor="let n of notifications">
+      <ion-label>
+        <h3>{{ n.title }}</h3>
+        <p>{{ n.message }}</p>
+        <small *ngIf="n.event_title">Événement: {{ n.event_title }}</small>
+      </ion-label>
+      <ion-button slot="end" (click)="markRead(n)">Marquer lu</ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+</ion-content>

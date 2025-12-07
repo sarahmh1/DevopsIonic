@@ -1,0 +1,8 @@
+<ion-app>
+  <ion-router-outlet></ion-router-outlet>
+  <ion-fab vertical="top" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/notifications" *ngIf="unread > 0">
+      <ion-badge>{{ unread }}</ion-badge>
+    </ion-fab-button>
+  </ion-fab>
+</ion-app>
