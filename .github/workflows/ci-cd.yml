@@ -112,3 +112,54 @@ jobs:
           echo "Backend Image: ${{ env.DOCKER_BACKEND_IMAGE }}"
           echo "Frontend Image: ${{ env.DOCKER_FRONTEND_IMAGE }}"
           echo "✅ Docker images pushed successfully!"
+
+  deploy-to-kubernetes:
+    name: Deploy to Kubernetes
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure Kubernetes context
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify Kubernetes connection
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Deploy Backend to Kubernetes
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/deployment-backend.yaml
+          kubectl apply -f k8s/service-backend.yaml
+          kubectl rollout restart deployment event-backend -n event-app
+          kubectl rollout status deployment/event-backend -n event-app --timeout=5m
+
+      - name: Deploy Frontend to Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment-frontend.yaml
+          kubectl apply -f k8s/service-frontend.yaml
+          kubectl rollout restart deployment event-frontend -n event-app
+          kubectl rollout status deployment/event-frontend -n event-app --timeout=5m
+
+      - name: Get deployment status
+        run: |
+          echo "📊 Deployment Status:"
+          kubectl get pods -n event-app
+          echo ""
+          echo "🌐 Services:"
+          kubectl get services -n event-app
+          echo ""
+          echo "✅ Deployment completed successfully!"
