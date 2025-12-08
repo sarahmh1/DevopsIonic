@@ -15,8 +15,8 @@ RUN npm install
 # Copier le code source
 COPY . .
 
-# Construire l'application Angular/Ionic
-RUN npm run build
+# Construire l'application Angular/Ionic en mode production
+RUN npm run build -- --configuration=production
 
 # Stage 2: Runtime
 FROM node:18-alpine
