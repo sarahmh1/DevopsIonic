@@ -255,20 +255,38 @@ app.post('/api/events', authenticateToken, (req, res) => {
 
 
 // Route: GET /api/my-events
-// Récupère les événements créés par l'organisateur connecté
+// Récupère les événements de l'utilisateur connecté
+// - Pour un organisateur: événements créés
+// - Pour un participant: événements auxquels il est inscrit
 app.get('/api/my-events', authenticateToken, (req, res) => {
-  const organizer_id = req.user.id;
+  const user_id = req.user.id;
+  const user_type = req.user.type;
   
-  db.all(
-    'SELECT * FROM events WHERE organizer_id = ?',
-    [organizer_id],
-    (err, events) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération de vos événements' });
+  if (user_type === 'organizer') {
+    // Retourner les événements créés par l'organisateur
+    db.all(
+      'SELECT * FROM events WHERE organizer_id = ?',
+      [user_id],
+      (err, events) => {
+        if (err) {
+          return res.status(500).json({ message: 'Erreur lors de la récupération de vos événements' });
+        }
+        res.json(events);
       }
-      res.json(events);
-    }
-  );
+    );
+  } else {
+    // Retourner les événements auxquels le participant est inscrit
+    db.all(
+      'SELECT e.* FROM events e JOIN registrations r ON e.id = r.event_id WHERE r.user_id = ?',
+      [user_id],
+      (err, events) => {
+        if (err) {
+          return res.status(500).json({ message: 'Erreur lors de la récupération de vos événements' });
+        }
+        res.json(events);
+      }
+    );
+  }
 });
 
 
