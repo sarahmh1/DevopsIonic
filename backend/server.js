@@ -254,6 +254,24 @@ app.post('/api/events', authenticateToken, (req, res) => {
 });
 
 
+// Route: GET /api/my-events
+// Récupère les événements créés par l'organisateur connecté
+app.get('/api/my-events', authenticateToken, (req, res) => {
+  const organizer_id = req.user.id;
+  
+  db.all(
+    'SELECT * FROM events WHERE organizer_id = ?',
+    [organizer_id],
+    (err, events) => {
+      if (err) {
+        return res.status(500).json({ message: 'Erreur lors de la récupération de vos événements' });
+      }
+      res.json(events);
+    }
+  );
+});
+
+
 // Route: POST /api/events/:id/register
 // Inscrit l'utilisateur authentifié à un événement
 app.post('/api/events/:id/register', authenticateToken, (req, res) => {
