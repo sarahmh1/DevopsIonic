@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-frontend
+  namespace: event-app
+  labels:
+    app: event-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: event-frontend
+  template:
+    metadata:
+      labels:
+        app: event-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: sarahmhadhbi/event-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4200
+          name: http
+        env:
+        - name: PORT
+          value: "4200"
+        - name: BACKEND_URL
+          value: "http://event-backend-service:3000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 4200
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 4200
+          initialDelaySeconds: 5
+          periodSeconds: 5

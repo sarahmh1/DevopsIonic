@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-frontend-service
+  namespace: event-app
+  labels:
+    app: event-frontend
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-name: "event-app-lb"
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
+    service.beta.kubernetes.io/do-loadbalancer-algorithm: "round_robin"
+spec:
+  type: LoadBalancer
+  selector:
+    app: event-frontend
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 4200

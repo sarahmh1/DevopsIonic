@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-backend
+  namespace: event-app
+  labels:
+    app: event-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: event-backend
+  template:
+    metadata:
+      labels:
+        app: event-backend
+    spec:
+      containers:
+      - name: backend
+        image: sarahmhadhbi/event-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: PORT
+          value: "3000"
+        - name: JWT_SECRET
+          value: "your-production-secret-key-change-me"
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5

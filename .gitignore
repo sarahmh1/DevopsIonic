@@ -45,3 +45,6 @@ Thumbs.db
 # Miscellaneous
 .history/
 *.tar.gz
+
+# Kubernetes secrets
+k8s/kubeconfig.yaml
