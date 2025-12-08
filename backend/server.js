@@ -272,6 +272,55 @@ app.get('/api/my-events', authenticateToken, (req, res) => {
 });
 
 
+// Route: PUT /api/events/:id
+// Met à jour un événement existant (authentifié, réservé au créateur)
+app.put('/api/events/:id', authenticateToken, (req, res) => {
+  const { title, date, location, description } = req.body;
+  const event_id = req.params.id;
+  const organizer_id = req.user.id;
+
+  // Vérifier que l'utilisateur est le créateur de l'événement
+  db.get('SELECT * FROM events WHERE id = ? AND organizer_id = ?', [event_id, organizer_id], (err, event) => {
+    if (err || !event) {
+      return res.status(404).json({ message: 'Événement non trouvé ou vous n\'êtes pas autorisé' });
+    }
+
+    db.run(
+      'UPDATE events SET title = ?, date = ?, location = ?, description = ? WHERE id = ?',
+      [title, date, location, description || '', event_id],
+      function(err) {
+        if (err) {
+          return res.status(500).json({ message: 'Erreur lors de la modification de l\'événement' });
+        }
+        res.json({ message: 'Événement modifié avec succès', id: event_id, title, date, location, description });
+      }
+    );
+  });
+});
+
+
+// Route: DELETE /api/events/:id
+// Supprime un événement (authentifié, réservé au créateur)
+app.delete('/api/events/:id', authenticateToken, (req, res) => {
+  const event_id = req.params.id;
+  const organizer_id = req.user.id;
+
+  // Vérifier que l'utilisateur est le créateur de l'événement
+  db.get('SELECT * FROM events WHERE id = ? AND organizer_id = ?', [event_id, organizer_id], (err, event) => {
+    if (err || !event) {
+      return res.status(404).json({ message: 'Événement non trouvé ou vous n\'êtes pas autorisé' });
+    }
+
+    db.run('DELETE FROM events WHERE id = ?', [event_id], function(err) {
+      if (err) {
+        return res.status(500).json({ message: 'Erreur lors de la suppression de l\'événement' });
+      }
+      res.json({ message: 'Événement supprimé avec succès' });
+    });
+  });
+});
+
+
 // Route: POST /api/events/:id/register
 // Inscrit l'utilisateur authentifié à un événement
 app.post('/api/events/:id/register', authenticateToken, (req, res) => {
@@ -289,6 +338,28 @@ app.post('/api/events/:id/register', authenticateToken, (req, res) => {
         return res.status(500).json({ message: 'Erreur lors de l\'inscription' });
       }
       res.status(201).json({ message: 'Inscription réussie' });
+    }
+  );
+});
+
+
+// Route: DELETE /api/events/:id/unregister
+// Désinscrit l'utilisateur authentifié d'un événement
+app.delete('/api/events/:id/unregister', authenticateToken, (req, res) => {
+  const event_id = req.params.id;
+  const user_id = req.user.id;
+
+  db.run(
+    'DELETE FROM registrations WHERE event_id = ? AND user_id = ?',
+    [event_id, user_id],
+    function(err) {
+      if (err) {
+        return res.status(500).json({ message: 'Erreur lors de la désinscription' });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ message: 'Vous n\'êtes pas inscrit à cet événement' });
+      }
+      res.json({ message: 'Désinscription réussie' });
     }
   );
 });
