@@ -21,7 +21,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 // Middlewares Express
 // - CORS pour autoriser les requêtes depuis le client
 // - bodyParser pour parser JSON et form-url-encoded
-app.use(cors());
+app.use(cors({
+  origin: '*', // Permet toutes les origines (ou spécifie: 'http://206.189.251.173')
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
